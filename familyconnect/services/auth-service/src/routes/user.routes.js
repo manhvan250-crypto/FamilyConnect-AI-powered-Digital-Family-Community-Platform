@@ -7,7 +7,7 @@ const UserController = require('../controllers/UserController');
 // const AuthGuard = require('../middleware/AuthGuard'); 
 // const requireRole = require('../../../../shared/src/requireRole');
 
-router.get('/', UserController.getAllUsers);
+router.put('/:id/role', UserController.updateUserRole);
 router.get('/:id', UserController.getUserById);
 router.put('/:id/role', UserController.updateUserRole);
 router.delete('/:id', UserController.deleteUser);

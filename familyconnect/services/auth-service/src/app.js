@@ -11,11 +11,13 @@ app.get('/health', (req, res) => res.status(200).json({ status: 'Auth Service is
 
 // 1. Khai báo route
 const authRoutes = require('./routes/auth.routes');
-const userRoutes = require('./routes/user.routes'); // Đã thêm route user
+const userRoutes = require('./routes/user.routes'); 
+const internalRoutes = require('./routes/internal.routes'); // <-- Đã thêm route internal
 
 // 2. Sử dụng route (đặt trước chỗ app.listen hoặc export)
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes); // Đã đăng ký đường dẫn /api/users
+app.use('/api/users', userRoutes); 
+app.use('/internal', internalRoutes); // <-- Đã đăng ký đường dẫn /internal
 
 // Middleware xử lý lỗi
 app.use((err, req, res, next) => {
