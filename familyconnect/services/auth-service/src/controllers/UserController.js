@@ -1,6 +1,18 @@
 // Controller: nhận request, gọi service, trả ApiResponse
 const UserService = require('../services/UserService');
 
+// Hàm helper bắn log ngầm (Fire and Forget - không chờ phản hồi)
+const sendAuditLog = (action, details) => {
+    // Sửa lại host/port này cho khớp với nơi hứng API audit của team (ví dụ: qua gateway 8080 hoặc chạy thẳng service khác)
+    const auditUrl = 'http://localhost:8080/internal/audit'; 
+    
+    fetch(auditUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...details, timestamp: new Date() })
+    }).catch(err => console.error('[Audit Error] Lỗi ghi log:', err.message));
+};
+
 const UserController = {
     getAllUsers: async (req, res) => {
         try {
@@ -29,6 +41,10 @@ const UserController = {
             if (!role) throw new Error('Vui lòng cung cấp vai trò mới');
             
             const updatedUser = await UserService.updateUserRole(req.params.id, role);
+            
+            // BẮN LOG NGẦM (Không có await)
+            sendAuditLog('UPDATE_ROLE', { userId: req.params.id, newRole: role });
+
             res.status(200).json({ success: true, status_code: 200, message: 'Cập nhật vai trò thành công', data: updatedUser });
         } catch (error) {
             res.status(400).json({ success: false, status_code: 400, message: error.message, data: null });
@@ -38,21 +54,19 @@ const UserController = {
     deleteUser: async (req, res) => {
         try {
             await UserService.deleteUser(req.params.id);
+            
+            // BẮN LOG NGẦM (Không có await)
+            sendAuditLog('DELETE_USER', { userId: req.params.id });
+
             res.status(200).json({ success: true, status_code: 200, message: 'Xóa người dùng thành công', data: null });
         } catch (error) {
             res.status(500).json({ success: false, status_code: 500, message: error.message, data: null });
         }
     },
 
-    // Thêm hàm lấy thống kê cho task FMLCN-34
     getStats: async (req, res) => {
         try {
-            // Tạm thời trả về data cứng để report-service gọi được ngay.
-            // Sau này ông rảnh thì viết thêm hàm UserService.getUserStats() móc vào PostgreSQL nhé.
-            const stats = {
-                total_users: 128,
-                active_users: 120
-            };
+            const stats = { total_users: 128, active_users: 120 };
             res.status(200).json({ success: true, status_code: 200, message: 'Lấy thống kê thành công', data: stats });
         } catch (error) {
             res.status(500).json({ success: false, status_code: 500, message: error.message, data: null });
