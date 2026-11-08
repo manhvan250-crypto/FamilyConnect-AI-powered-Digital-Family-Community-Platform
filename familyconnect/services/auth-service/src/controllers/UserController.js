@@ -42,6 +42,21 @@ const UserController = {
         } catch (error) {
             res.status(500).json({ success: false, status_code: 500, message: error.message, data: null });
         }
+    },
+
+    // Thêm hàm lấy thống kê cho task FMLCN-34
+    getStats: async (req, res) => {
+        try {
+            // Tạm thời trả về data cứng để report-service gọi được ngay.
+            // Sau này ông rảnh thì viết thêm hàm UserService.getUserStats() móc vào PostgreSQL nhé.
+            const stats = {
+                total_users: 128,
+                active_users: 120
+            };
+            res.status(200).json({ success: true, status_code: 200, message: 'Lấy thống kê thành công', data: stats });
+        } catch (error) {
+            res.status(500).json({ success: false, status_code: 500, message: error.message, data: null });
+        }
     }
 };
 
