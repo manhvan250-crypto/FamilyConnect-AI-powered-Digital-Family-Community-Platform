@@ -19,6 +19,12 @@ const UserService = {
     deleteUser: async (userId) => {
         // Hàm này gọi delete, cần định nghĩa trong User.js
         return await User.delete(userId);
+    },
+
+    // Xử lý task FMLCN-44: Nâng cấp user thành FAMILY_MEMBER và bật cờ is_verified
+    verifyUser: async (userId, newRole, isVerified) => {
+        // Hàm này gọi verify xuống model, cần định nghĩa trong User.js
+        return await User.verify(userId, newRole, isVerified);
     }
 };
 

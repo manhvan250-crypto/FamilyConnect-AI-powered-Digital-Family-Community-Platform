@@ -71,6 +71,28 @@ const UserController = {
         } catch (error) {
             res.status(500).json({ success: false, status_code: 500, message: error.message, data: null });
         }
+    },
+
+    // Xử lý task FMLCN-44: Duyệt tài khoản thành FAMILY_MEMBER
+    verifyFamilyMember: async (req, res) => {
+        try {
+            const { id } = req.params; // Lấy ID của user cần duyệt từ URL
+            
+            // Gọi UserService để xử lý logic Database (update role và is_verified)
+            const verifiedUser = await UserService.verifyUser(id, 'FAMILY_MEMBER', true); 
+            
+            // BẮN LOG NGẦM báo cáo đã duyệt thành công
+            sendAuditLog('VERIFY_FAMILY_MEMBER', { userId: id, newRole: 'FAMILY_MEMBER' });
+
+            res.status(200).json({ 
+                success: true, 
+                status_code: 200, 
+                message: 'Duyệt tài khoản thành FAMILY_MEMBER thành công', 
+                data: verifiedUser 
+            });
+        } catch (error) {
+            res.status(400).json({ success: false, status_code: 400, message: error.message, data: null });
+        }
     }
 };
 
